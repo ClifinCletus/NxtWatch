@@ -111,7 +111,8 @@ const VideoItemDetails = () => {
                 setDislikeActive(false)
               }}
             >
-              <BiLike size={20} />
+              <BiLike size={20} style={{ position:'relative', top: '5px', paddingRight:'5px'}} />
+
               Like
             </ControlButton>
             <ControlButton
@@ -121,11 +122,11 @@ const VideoItemDetails = () => {
                 setLikeActive(false)
               }}
             >
-              <BiDislike />
+              <BiDislike size={20} style={{ position:'relative', top: '5px', paddingRight:'5px'}} />
               Dislike
             </ControlButton>
             <ControlButton active={isSaved} onClick={onSave}>
-              {isSaved ? 'Saved' : <div> <span><MdOutlinePlaylistAdd/></span>Save</div>}
+              {isSaved ? 'Saved' : <div> <span size={30} style={{ position:'relative', top: '2px', paddingRight:'5px'}}><MdOutlinePlaylistAdd/></span>Save</div>}
             </ControlButton>
           </div>
         </ControlsRow>

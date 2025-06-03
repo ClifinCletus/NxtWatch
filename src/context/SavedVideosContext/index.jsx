@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React, {useState, useEffect} from 'react'
 
 const SavedVideosContext = React.createContext({
   savedVideosList: [],
@@ -6,7 +6,14 @@ const SavedVideosContext = React.createContext({
 })
 
 export const SavedVideosProvider = ({children}) => {
-  const [savedVideosList, setSavedVideosList] = useState([])
+  const [savedVideosList, setSavedVideosList] = useState(() => {
+    const storedVideos = localStorage.getItem('savedVideos')
+    return storedVideos ? JSON.parse(storedVideos) : []
+  })
+
+  useEffect(() => {
+    localStorage.setItem('savedVideos', JSON.stringify(savedVideosList))
+  }, [savedVideosList])
 
   const toggleSavedVideo = video => {
     setSavedVideosList(prevVideos => {

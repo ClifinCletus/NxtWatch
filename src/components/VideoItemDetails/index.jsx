@@ -1,8 +1,9 @@
-import {Component} from 'react'
+import {useState, useEffect, useContext} from 'react'
 import Cookies from 'js-cookie'
 import ReactPlayer from 'react-player'
 import {BiLike, BiDislike} from 'react-icons/bi'
 // import { MdOutlinePlaylistAdd } from "react-icons/md";
+import { useParams } from 'react-router-dom'
 import {Circles} from 'react-loader-spinner'
 import ThemeContext from '../../context/ThemeContext'
 import SavedVideosContext from '../../context/SavedVideosContext'
@@ -32,23 +33,18 @@ const apiStatusConstants = {
   IN_PROGRESS: 'IN_PROGRESS',
 }
 
-class VideoItemDetails extends Component {
-  state = {
-    apiStatus: apiStatusConstants.INITIAL,
-    videoDetails: {},
-    likeActive: false,
-    dislikeActive: false,
-  }
+const VideoItemDetails = () => {
+  const [apiStatus, setApiStatus] = useState(apiStatusConstants.INITIAL)
+  const [videoDetails, setVideoDetails] = useState({})
+  const [likeActive, setLikeActive] = useState(false)
+  const [dislikeActive, setDislikeActive] = useState(false)
 
-  componentDidMount() {
-    this.fetchVideoDetails()
-  }
+  const {id} = useParams()
+  const theme = useContext(ThemeContext)
+  const {savedVideosList, toggleSavedVideo} = useContext(SavedVideosContext)
 
-  fetchVideoDetails = async () => {
-    this.setState({apiStatus: apiStatusConstants.IN_PROGRESS})
-    const {match} = this.props
-    const {params} = match
-    const {id} = params
+  const fetchVideoDetails = async () => {
+    setApiStatus(apiStatusConstants.IN_PROGRESS)
     const jwtToken = Cookies.get('jwt_token')
 
     const url = `https://apis.ccbp.in/videos/${id}`
@@ -76,18 +72,19 @@ class VideoItemDetails extends Component {
           subscriberCount: details?.channel?.subscriber_count || 0,
         },
       }
-      this.setState({
-        videoDetails: updatedData,
-        apiStatus: apiStatusConstants.SUCCESS,
-      })
+      setVideoDetails(updatedData)
+      setApiStatus(apiStatusConstants.SUCCESS)
     } else {
-      this.setState({apiStatus: apiStatusConstants.FAILURE})
+      setApiStatus(apiStatusConstants.FAILURE)
     }
   }
 
-  renderContent = (theme, savedVideos = [], toggleSavedVideo) => {
-    const {videoDetails, likeActive, dislikeActive} = this.state
-    const isSaved = savedVideos.some(video => video.id === videoDetails?.id)
+  useEffect(() => {
+    fetchVideoDetails()
+  }, [])
+
+  const renderContent = () => {
+    const isSaved = savedVideosList.some(video => video.id === videoDetails?.id)
 
     const onSave = () => {
       toggleSavedVideo(videoDetails)
@@ -109,21 +106,20 @@ class VideoItemDetails extends Component {
           <div>
             <ControlButton
               active={likeActive}
-              onClick={() =>
-                this.setState({likeActive: !likeActive, dislikeActive: false})
-              }
+              onClick={() => {
+                setLikeActive(!likeActive)
+                setDislikeActive(false)
+              }}
             >
               <BiLike size={20} />
               Like
             </ControlButton>
             <ControlButton
               active={dislikeActive}
-              onClick={() =>
-                this.setState({
-                  dislikeActive: !dislikeActive,
-                  likeActive: false,
-                })
-              }
+              onClick={() => {
+                setDislikeActive(!dislikeActive)
+                setLikeActive(false)
+              }}
             >
               <BiDislike />
               Dislike
@@ -149,13 +145,13 @@ class VideoItemDetails extends Component {
     )
   }
 
-  renderLoader = () => (
+  const renderLoader = () => (
     <LoaderContainer>
       <Circles color="#2563eb" height={50} width={50} />
     </LoaderContainer>
   )
 
-  renderFailure = theme => (
+  const renderFailure = () => (
     <FailureView>
       <img
         src={
@@ -167,45 +163,30 @@ class VideoItemDetails extends Component {
       />
       <h2>Oops! Something Went Wrong</h2>
       <p>We are having trouble fetching the video. Please try again.</p>
-      <RetryButton onClick={this.fetchVideoDetails}>Retry</RetryButton>
+      <RetryButton onClick={fetchVideoDetails}>Retry</RetryButton>
     </FailureView>
   )
 
-  render() {
-    const {apiStatus} = this.state
-    return (
-      <ThemeContext.Consumer>
-        {theme => (
-          <SavedVideosContext.Consumer>
-            {({savedVideosList, toggleSavedVideo}) => (
-              <PageContainer isDark={theme.isDarkTheme}>
-                <Header />
-                <ContentWrapper>
-                  <Sidebar />
-                  {(() => {
-                    switch (apiStatus) {
-                      case apiStatusConstants.SUCCESS:
-                        return this.renderContent(
-                          theme,
-                          savedVideosList || [],
-                          toggleSavedVideo,
-                        )
-                      case apiStatusConstants.FAILURE:
-                        return this.renderFailure(theme)
-                      case apiStatusConstants.IN_PROGRESS:
-                        return this.renderLoader()
-                      default:
-                        return null
-                    }
-                  })()}
-                </ContentWrapper>
-              </PageContainer>
-            )}
-          </SavedVideosContext.Consumer>
-        )}
-      </ThemeContext.Consumer>
-    )
-  }
+  return (
+    <PageContainer isDark={theme.isDarkTheme}>
+      <Header />
+      <ContentWrapper>
+        <Sidebar />
+        {(() => {
+          switch (apiStatus) {
+            case apiStatusConstants.SUCCESS:
+              return renderContent()
+            case apiStatusConstants.FAILURE:
+              return renderFailure()
+            case apiStatusConstants.IN_PROGRESS:
+              return renderLoader()
+            default:
+              return null
+          }
+        })()}
+      </ContentWrapper>
+    </PageContainer>
+  )
 }
 
 export default VideoItemDetails

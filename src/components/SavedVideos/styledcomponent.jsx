@@ -76,7 +76,6 @@ export const VideoCard = styled.li`
 export const Thumbnail = styled.img`
   width: 280px;
   height: 160px;
-  object-fit: cover;
   border-radius: 8px;
 `
 

@@ -83,6 +83,20 @@ const VideoItemDetails = () => {
     fetchVideoDetails()
   }, [])
 
+ useEffect(() => {
+  const likedVideos = JSON.parse(localStorage.getItem('likedVideos')) || []
+  const dislikedVideos = JSON.parse(localStorage.getItem('dislikedVideos')) || []
+
+  if (likedVideos.includes(id)) {
+    setLikeActive(true)
+    setDislikeActive(false)
+  } else if (dislikedVideos.includes(id)) {
+    setDislikeActive(true)
+    setLikeActive(false)
+  }
+}, [id])
+
+
   const renderContent = () => {
     const isSaved = savedVideosList.some(video => video.id === videoDetails?.id)
 
@@ -105,26 +119,57 @@ const VideoItemDetails = () => {
           </VideoMetaData>
           <div>
             <ControlButton
-              active={likeActive}
-              onClick={() => {
-                setLikeActive(!likeActive)
-                setDislikeActive(false)
-              }}
-            >
-              <BiLike size={20} style={{ position:'relative', top: '5px', paddingRight:'5px'}} />
+  active={likeActive}
+  onClick={() => {
+    const likedVideos = JSON.parse(localStorage.getItem('likedVideos')) || []
+    const dislikedVideos = JSON.parse(localStorage.getItem('dislikedVideos')) || []
 
-              Like
-            </ControlButton>
-            <ControlButton
-              active={dislikeActive}
-              onClick={() => {
-                setDislikeActive(!dislikeActive)
-                setLikeActive(false)
-              }}
-            >
-              <BiDislike size={20} style={{ position:'relative', top: '5px', paddingRight:'5px'}} />
-              Dislike
-            </ControlButton>
+    let updatedLikedVideos = likedVideos
+    let updatedDislikedVideos = dislikedVideos.filter(vid => vid !== id)
+
+    if (!likeActive) {
+      updatedLikedVideos = [...likedVideos, id]
+    } else {
+      updatedLikedVideos = likedVideos.filter(vid => vid !== id)
+    }
+
+    localStorage.setItem('likedVideos', JSON.stringify(updatedLikedVideos))
+    localStorage.setItem('dislikedVideos', JSON.stringify(updatedDislikedVideos))
+
+    setLikeActive(!likeActive)
+    setDislikeActive(false)
+  }}
+>
+  <BiLike size={20} style={{ position: 'relative', top: '5px', paddingRight: '5px' }} />
+  Like
+</ControlButton>
+
+<ControlButton
+  active={dislikeActive}
+  onClick={() => {
+    const likedVideos = JSON.parse(localStorage.getItem('likedVideos')) || []
+    const dislikedVideos = JSON.parse(localStorage.getItem('dislikedVideos')) || []
+
+    let updatedDislikedVideos = dislikedVideos
+    let updatedLikedVideos = likedVideos.filter(vid => vid !== id)
+
+    if (!dislikeActive) {
+      updatedDislikedVideos = [...dislikedVideos, id]
+    } else {
+      updatedDislikedVideos = dislikedVideos.filter(vid => vid !== id)
+    }
+
+    localStorage.setItem('likedVideos', JSON.stringify(updatedLikedVideos))
+    localStorage.setItem('dislikedVideos', JSON.stringify(updatedDislikedVideos))
+
+    setDislikeActive(!dislikeActive)
+    setLikeActive(false)
+  }}
+>
+  <BiDislike size={20} style={{ position: 'relative', top: '5px', paddingRight: '5px' }} />
+  Dislike
+</ControlButton>
+
             <ControlButton active={isSaved} onClick={onSave}>
               {isSaved ? 'Saved' : <div> <span size={30} style={{ position:'relative', top: '2px', paddingRight:'5px'}}><MdOutlinePlaylistAdd/></span>Save</div>}
             </ControlButton>

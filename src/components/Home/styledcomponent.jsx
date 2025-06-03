@@ -111,3 +111,7 @@ export const RetryButton = styled.button`
   cursor: pointer;
   margin-top: 20px;
 `
+
+export const Failimg = styled.img`
+width:200px;
+`

@@ -2,7 +2,7 @@ import {useState, useEffect, useContext} from 'react'
 import Cookies from 'js-cookie'
 import ReactPlayer from 'react-player'
 import {BiLike, BiDislike} from 'react-icons/bi'
-// import { MdOutlinePlaylistAdd } from "react-icons/md";
+import { MdOutlinePlaylistAdd } from "react-icons/md";
 import { useParams } from 'react-router-dom'
 import {Circles} from 'react-loader-spinner'
 import ThemeContext from '../../context/ThemeContext'
@@ -125,7 +125,7 @@ const VideoItemDetails = () => {
               Dislike
             </ControlButton>
             <ControlButton active={isSaved} onClick={onSave}>
-              {isSaved ? 'Saved' : 'Save'}
+              {isSaved ? 'Saved' : <div> <span><MdOutlinePlaylistAdd/></span>Save</div>}
             </ControlButton>
           </div>
         </ControlsRow>

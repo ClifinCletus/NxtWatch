@@ -19,6 +19,7 @@ import {
   VideoThumbnail,
   FailureView,
   RetryButton,
+  Failimg
 } from './styledcomponent'
 
 const Home = () => {
@@ -65,6 +66,14 @@ const Home = () => {
     fetchVideos(search)
   }, [search, fetchVideos])
 
+  useEffect(() => {
+    const timeoutId = setTimeout(() => {
+      fetchVideos(search)
+    }, 100)
+
+    return () => clearTimeout(timeoutId)
+  }, [search, fetchVideos])
+
   const navigateToVideo = id => {
     navigate(`/videos/${id}`)
   }
@@ -89,6 +98,18 @@ const Home = () => {
           We are having some trouble completing your request. Please try again.
         </p>
         <RetryButton onClick={fetchVideos}>Retry</RetryButton>
+      </FailureView>
+    )
+  } else if (videos.length === 0) {
+    content = (
+      <FailureView>
+        <Failimg
+          src="https://assets.ccbp.in/frontend/react-js/nxt-watch-no-search-results-img.png"
+          alt="no videos"
+        />
+        <h1>No Search Results Found</h1>
+        <p>Try different keywords or remove the search filter.</p>
+        <RetryButton onClick={() => fetchVideos('')}>Retry</RetryButton>
       </FailureView>
     )
   } else {
